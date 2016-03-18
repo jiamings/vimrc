@@ -182,7 +182,7 @@ set noswapfile
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Use spaces instead of tabs
 set expandtab
-
+set nu
 " Be smart when using tabs ;)
 set smarttab
 
