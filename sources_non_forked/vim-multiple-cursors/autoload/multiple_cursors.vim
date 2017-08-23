@@ -111,8 +111,11 @@ endfunction
 " attempted to be created at the next occurrence of the visual selection
 function! multiple_cursors#new(mode, word_boundary)
   " Call before function if exists only once until it is canceled (<Esc>)
-  if exists('*Multiple_cursors_before') && !s:before_function_called
-    exe "call Multiple_cursors_before()"
+  if !s:before_function_called
+    doautocmd User MultipleCursorsPre
+    if exists('*Multiple_cursors_before')
+      exe "call Multiple_cursors_before()"
+    endif
     let s:before_function_called = 1
   endif
   let s:use_word_boundary = a:word_boundary
@@ -436,8 +439,11 @@ function! s:CursorManager.reset(restore_view, restore_setting, ...) dict
     call self.restore_user_settings()
   endif
   " Call after function if exists and only if action is canceled (<Esc>)
-  if exists('*Multiple_cursors_after') && a:0 && s:before_function_called
-    exe "call Multiple_cursors_after()"
+  if a:0 && s:before_function_called
+    if exists('*Multiple_cursors_after')
+      exe "call Multiple_cursors_after()"
+    endif
+    doautocmd User MultipleCursorsPost
     let s:before_function_called = 0
   endif
 endfunction
@@ -886,7 +892,8 @@ function! s:process_user_input()
   " Grr this is frustrating. In Insert mode, between the feedkey call and here,
   " the current position could actually CHANGE for some odd reason. Forcing a
   " position reset here
-  call cursor(s:cm.get_current().position)
+  let cursor_position = s:cm.get_current()
+  call cursor(cursor_position.position)
 
   " Before applying the user input, we need to revert back to the mode the user
   " was in when the input was entered
@@ -894,13 +901,14 @@ function! s:process_user_input()
 
   " Update the line length BEFORE applying any actions. TODO(terryma): Is there
   " a better place to do this?
-  call s:cm.get_current().update_line_length()
+  " let cursor_position = s:cm.get_current()
+  call cursor_position.update_line_length()
   let s:saved_linecount = line('$')
 
   " Restore unnamed register only in Normal mode. This should happen before user
   " input is processed.
   if s:from_mode ==# 'n' || s:from_mode ==# 'v' || s:from_mode ==# 'V'
-    call s:cm.get_current().restore_unnamed_register()
+    call cursor_position.restore_unnamed_register()
   endif
 
   " Apply the user input. Note that the above could potentially change mode, we
