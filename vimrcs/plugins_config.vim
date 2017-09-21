@@ -171,3 +171,11 @@ nnoremap <silent> <leader>c :call SyntasticCheckCoffeescript()<cr>
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 let g:gitgutter_enabled=0
 nnoremap <silent> <leader>d :GitGutterToggle<cr>
+
+
+""""""""""""""
+" => Plug
+""""""""""""""
+call plug#begin('~/.vim_runtime/plugged')
+Plug 'Valloric/YouCompleteMe', { 'do': './install.py' }
+call plug#end()
